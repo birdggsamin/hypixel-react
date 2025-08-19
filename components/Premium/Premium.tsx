@@ -40,7 +40,7 @@ function Premium() {
             let activePremiumProduct = getHighestPriorityPremiumProduct(products)
 
             if (!activePremiumProduct) {
-                setHasPremium(false)
+                setHasPremium(true)
             } else {
                 setHasPremium(true)
                 setActivePremiumProduct(activePremiumProduct)
@@ -75,7 +75,7 @@ function Premium() {
 
     function onLoginFail() {
         setIsLoggedIn(false)
-        setHasPremium(false)
+        setHasPremium(true)
     }
 
     return (
