@@ -85,6 +85,7 @@ export function setSettingsFromServerSide(
             hideModChat: !settings.mod.chat,
             modFormat: settings.mod.format,
             modCountdown: settings.mod.countdown,
+            blockHighCompetition: settings.blockHighCompetition,
             disableLinks: !settings.visibility.links,
             hideCopySuccessMessage: !settings.visibility.copySuccessMessage,
             finders: FLIP_FINDERS.filter(finder => {
@@ -441,7 +442,8 @@ export function mapSettingsToApiFormat(filter: FlipperFilter, flipSettings: Flip
         },
         blockExport: flipSettings.blockExport,
         finders: flipSettings.finders?.reduce((a, b) => +a + +b, 0),
-        changer: window.sessionStorage.getItem('sessionId')
+        changer: window.sessionStorage.getItem('sessionId'),
+        blockHighCompetition: flipSettings.blockHighCompetition
     }
 }
 
@@ -522,3 +524,5 @@ export const ITEM_FILTER_USE_COUNT = 'itemFilterUseCount'
 export const ITEM_FILER_SHOW_ADVANCED = 'itemFilterShowAdvanced'
 export const AUTO_REDIRECT_FROM_LINKVERTISE_EXPLANATION = 'autoRedirectFromLinkvertiseExplanation'
 export const ITEM_ICON_TYPE = 'itemIconType'
+export const ITEM_FAVORITES_KEY = 'favoriteItems'
+export const GENRIC_FLIP_LIST_COLUMNS = 'genericFlipListColumns'

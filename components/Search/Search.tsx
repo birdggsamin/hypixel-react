@@ -25,7 +25,9 @@ import {
     unpinSearchResult
 } from '../../utils/PreviousSearchUtils'
 import { ITEM_ICON_TYPE, getSetting, setSetting } from '../../utils/SettingsUtils'
+import { isAnySearchInputInUse } from '../../utils/SearchFocusUtils'
 import ClientOnly from '../ClientOnly/ClientOnly'
+import FavoriteToggle from '../Favorites/FavoriteToggle'
 
 interface Props {
     selected?: Player | Item
@@ -42,6 +44,7 @@ interface Props {
     onResetClick?()
     hideOptions?: boolean
     keyForPinnedItems?: string
+    showFavoriteToggle?: boolean
 }
 
 const PLAYER_SEARCH_CONEXT_MENU_ID = 'player-search-context-menu'
@@ -62,6 +65,12 @@ function Search(props: Props) {
         id: SEARCH_RESULT_CONTEXT_MENU_ID
     })
     const isMobile = useIsMobile()
+
+    // Generate unique ID for this search instance
+    const searchId = useRef(`search-bar-${Math.random().toString(36).substr(2, 9)}`)
+
+    // Use 'search-bar' for global search (when navbar is not hidden), unique ID for others
+    const inputId = props.hideNavbar ? searchId.current : 'search-bar'
 
     let rememberEnterPressRef = useRef(false)
 
@@ -90,7 +99,7 @@ function Search(props: Props) {
             // has the searchtext changed?
             if (
                 searchElement.current !== null &&
-                searchFor === ((searchElement.current as HTMLDivElement).querySelector('#search-bar') as HTMLInputElement).value
+                searchFor === ((searchElement.current as HTMLDivElement).querySelector(`#${inputId}`) as HTMLInputElement).value
             ) {
                 let searchResultsToShow = [...searchResults]
                 if (!props.preventDisplayOfPreviousSearches) {
@@ -203,7 +212,18 @@ function Search(props: Props) {
             }}
         >
             <Image className={styles.searchResultIcon} height={32} width={32} src="/Barrier.png" alt="" />
-            No search results
+               <span>No results here </span>
+                <a
+                    onClick={() => {
+                        if (typeof window !== 'undefined') {
+                            const q = encodeURIComponent(searchText || '')
+                            window.location.href = `https://skysearch.app/search?q=${q}`
+                        }
+                    }}
+                    style={{ cursor: 'pointer', color: '#0d6efd', marginTop: '6px' }}
+                >
+                    Search for {searchText} on Skysearch
+                </a>
         </ListGroup.Item>
     )
 
@@ -241,6 +261,13 @@ function Search(props: Props) {
                     />
                 </ClientOnly>
                 {props.selected.name || convertTagToName((props.selected as Item).tag)}
+                {props.showFavoriteToggle && props.type === 'item' && props.selected ? (
+                    <FavoriteToggle
+                        item={props.selected as Item}
+                        className={styles.favoriteToggle}
+                        size="small"
+                    />
+                ) : null}
                 {props.enableReset ? (
                     <ClearIcon onClick={props.onResetClick} style={{ cursor: 'pointer', color: 'red', marginLeft: '10px', fontWeight: 'bold' }} />
                 ) : null}
@@ -301,6 +328,22 @@ function Search(props: Props) {
     function handleSearchContextMenuForSearchResult(event: React.MouseEvent<HTMLElement, MouseEvent>, searchResultItem: SearchResultItem) {
         event.preventDefault()
         showSearchItemContextMenu({ event: event, props: { item: searchResultItem } })
+    }
+
+    /**
+     * Determines if this search component should prevent auto-focus
+     * This prevents secondary search components from stealing focus from primary ones
+     */
+    function shouldPreventAutoFocus(): boolean {
+        // If this is a secondary search (has hideNavbar or specific placeholder),
+        // check if any other search inputs are in use
+        const isSecondarySearch = props.hideNavbar || (props.placeholder && props.placeholder !== 'Search player/item')
+
+        if (isSecondarySearch) {
+            return isAnySearchInputInUse()
+        }
+
+        return false
     }
 
     let currentItemContextMenuElement = (
@@ -390,11 +433,11 @@ function Search(props: Props) {
                         </InputGroup.Text>
                         <Form.Control
                             key="search"
-                            autoFocus={!isMobile}
+                            autoFocus={!isMobile && !shouldPreventAutoFocus()}
                             style={searchStyle}
                             type="text"
                             placeholder={props.placeholder || 'Search player/item'}
-                            id={'search-bar'}
+                            id={inputId}
                             className="searchBar"
                             value={searchText}
                             onChange={onSearchChange}

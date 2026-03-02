@@ -1,3 +1,31 @@
+:root {
+    /* Map custom site variables to Bootstrap theme variables where possible. */
+    --unselected-text-primary: var(--bs-body-color);
+    --unselected-text-secondary: var(--bs-secondary);
+    --unselected-text-muted: var(--bs-secondary);
+
+    /* Selected state colors should follow the Bootstrap body color and muted variations */
+    --selected-text-primary: var(--bs-body-color);
+    --selected-text-secondary: var(--bs-secondary);
+    --selected-text-muted: var(--bs-secondary);
+
+    /* Accent colors use Bootstrap semantic colors */
+    --tier-premium-color: var(--bs-success);
+    --tier-premium-plus-color: var(--bs-warning);
+    --tier-premium-selected: var(--bs-success);
+    --tier-premium-plus-selected: var(--bs-warning);
+
+    /* Interactive colors mapped to Bootstrap border / primary */
+    --border-default: var(--bs-border-color);
+    --border-hover: var(--bs-primary);
+    --border-selected: var(--bs-primary);
+    --bg-selected: transparent;
+
+    /* Success/accent colors */
+    --success-color: var(--bs-success);
+    --success-dark: var(--bs-success);
+}
+
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -6,7 +34,8 @@ body {
     -moz-osx-font-smoothing: grayscale;
     position: relative;
     min-height: 100%;
-    background-color: #222;
+    background-color: var(--bs-body-bg, #222);
+    color: var(--bs-body-color);
     display: inline-block;
     width: 100%;
     overflow-x: hidden;
@@ -50,7 +79,7 @@ code {
 }
 
 a {
-    color: #007bff;
+    color: var(--bs-primary);
     cursor: pointer;
 }
 
@@ -74,21 +103,21 @@ img {
 }
 
 option {
-    background-color: #222;
-    color: #fff;
-    border-color: #444;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    border-color: var(--bs-border-color);
 }
 
-.form-control,.form-select {
-    background-color: #222;
-    color: #fff;
-    border-color: #444;
+.form-control, .form-select {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    border-color: var(--bs-border-color);
 }
 
-.form-control:focus,.form-select:focus {
-    background-color: #222;
-    color: #fff;
-    border-color: #444;
+.form-control:focus, .form-select:focus {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    border-color: var(--bs-border-color);
 }
 
 .form-control:disabled,.form-select:disabled {

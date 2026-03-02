@@ -31,7 +31,7 @@ enum GRAPH_TYPE {
     SINGLE = 'single'
 }
 
-const DEFAULT_GRAPH_TYPE = GRAPH_TYPE.SPLIT
+const DEFAULT_GRAPH_TYPE = GRAPH_TYPE.SINGLE
 
 let currentLoadingString
 
@@ -461,7 +461,7 @@ function BazaarPriceGraph(props: Props) {
                     </div>
                 </div>
                 <hr />
-                <RelatedItems tag={props.item.tag} />
+                <RelatedItems tag={props.item.tag} isBazaarItem={true} />
                 <BazaarSnapshot item={props.item} />
             </div>
         </div>

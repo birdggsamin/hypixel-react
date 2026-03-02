@@ -1,17 +1,21 @@
 import { initAPI } from '../../../api/ApiHelper'
-import { getHeadMetadata } from '../../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../../utils/SSRUtils'
 import { notFound } from 'next/navigation'
 import PlayerDetails from '../../../components/PlayerDetails/PlayerDetails'
 import { parseAuction, parsePlayer } from '../../../utils/Parser/APIResponseParser'
 import { Container } from 'react-bootstrap'
+import { BottomBanner } from '../../../components/BottomBanner/BottomBanner'
 
 export default async function Page(props) {
-    const params = await props.params;
+    const params = await props.params
     let playerInfo = await getPlayerInfo(params.uuid)
     return (
-        <Container>
-            <PlayerDetails player={parsePlayer(playerInfo.player)} auctions={playerInfo.auctions.map(parseAuction)} />
-        </Container>
+        <>
+            <Container>
+                <PlayerDetails player={parsePlayer(playerInfo.player)} auctions={playerInfo.auctions.map(parseAuction)} />
+            </Container>
+            <BottomBanner />
+        </>
     )
 }
 
@@ -40,7 +44,7 @@ async function getPlayerInfo(uuid) {
 }
 
 export async function generateMetadata(props) {
-    const params = await props.params;
+    const params = await props.params
     let api = initAPI(true)
     let player = {
         name: '',
@@ -60,7 +64,8 @@ export async function generateMetadata(props) {
         `Auctions and bids for ${player?.name} in Hypixel Skyblock.`,
         player?.iconUrl?.split('?')[0],
         [player?.name || ''],
-        `${player?.name} Auctions and Bids | Hypixel SkyBlock AH history tracker`
+        `${player?.name} Auctions and Bids | Hypixel SkyBlock AH history tracker`,
+        getCanonicalUrl(`/player/${params.uuid}`)
     )
 }
 

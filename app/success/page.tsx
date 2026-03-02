@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Confetti from '../../components/Confetti/Confetti'
-import { getHeadMetadata } from '../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
 import { Button, Container } from 'react-bootstrap'
 
@@ -17,7 +17,7 @@ export default function Page() {
                     Your CoflCoins will be awarded as soon as the money transfer finished. This may take a few minutes up to a few days (depending on your
                     payment method).
                 </p>
-                <Link href="/premium" className="disableLinkStyle">
+                <Link href="/premium?tier=premium" className="disableLinkStyle">
                     <Button>Return to the Premium page</Button>
                 </Link>
             </Container>
@@ -26,4 +26,11 @@ export default function Page() {
     )
 }
 
-export const metadata = getHeadMetadata('Payment successful')
+export const metadata = getHeadMetadata(
+    'Payment Successful',
+    'Thank you for your purchase! Your premium subscription is now active. Enjoy advanced features, priority support, and enhanced Hypixel SkyBlock tools to maximize your trading profits.',
+    undefined,
+    undefined,
+    undefined,
+    getCanonicalUrl('/success')
+)

@@ -15,9 +15,22 @@ interface Props {
     showIcon?: boolean
 }
 
+// Map of filter names to option values that need special postfixes
+const OPTION_POSTFIXES: Record<string, Record<string, string>> = {
+    Reforge: {
+        bloodshot: ' (from npc)'
+    }
+}
+
 export function EqualFilterElement(props: Props) {
     function _onChange(selected) {
         props.onChange(selected[0] || '')
+    }
+
+    function getOptionLabel(option: string): string {
+        const baseName = convertTagToName(option)
+        const postfix = OPTION_POSTFIXES[props.options.name]?.[option] || ''
+        return baseName + postfix
     }
 
     return (
@@ -28,34 +41,36 @@ export function EqualFilterElement(props: Props) {
             onChange={_onChange}
             options={props.options?.options}
             labelKey={option => {
-                return convertTagToName(option as string)
+                return getOptionLabel(option as string)
             }}
             isInvalid={!props.isValid}
             selectHint={(shouldSelect, event) => {
                 return event.key === 'Enter' || shouldSelect
             }}
             renderMenu={(results, menuProps) => {
-                return <Menu id={menuProps.id} style={menuProps.style} innerRef={menuProps.innerRef} >
-                    {results.map((result, index) => {
-                        if (result['paginationOption']) {
+                return (
+                    <Menu id={menuProps.id} style={menuProps.style} innerRef={menuProps.innerRef}>
+                        {results.map((result, index) => {
+                            if (result['paginationOption']) {
+                                return (
+                                    <MenuItem option={result} position={index} key={index}>
+                                        More results...
+                                    </MenuItem>
+                                )
+                            }
                             return (
-                                <MenuItem option={result} position={index} key={index}>
-                                    More results...
-                                </MenuItem>
+                                <Item option={result} position={index} key={index}>
+                                    {typeof result === 'string' ? getOptionLabel(result as string) : (result as Option)['label']}
+                                    {props.showIcon && result !== 'None' && result !== 'Any' && (
+                                        <div style={{ float: 'right' }}>
+                                            <img src={api.getItemImageUrl({ tag: result as string })} style={{ width: '24px', height: '24px' }}></img>
+                                        </div>
+                                    )}
+                                </Item>
                             )
-                        }
-                        return (
-                            <Item option={result} position={index} key={index}>
-                                {typeof result === 'string' ? convertTagToName(result as string) : (result as Option)['label']}
-                                {props.showIcon && result !== 'None' && result !== 'Any' && (
-                                    <div style={{ float: 'right' }}>
-                                        <img src={api.getItemImageUrl({ tag: result as string })} style={{ width: '24px', height: '24px' }}></img>
-                                    </div>
-                                )}
-                            </Item>
-                        )
-                    })}
-                </Menu>
+                        })}
+                    </Menu>
+                )
             }}
         ></Typeahead>
     )

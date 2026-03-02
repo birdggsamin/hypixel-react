@@ -4,11 +4,11 @@ import Search from '../../../../components/Search/Search'
 import { convertTagToName } from '../../../../utils/Formatter'
 import api, { initAPI } from '../../../../api/ApiHelper'
 import ArchivedAuctionsList from '../../../../components/ArchivedAuctions.tsx/ArchivedAuctions'
-import { getHeadMetadata } from '../../../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../../../utils/SSRUtils'
 import { atobUnicode } from '../../../../utils/Base64Utils'
 
 export default async function Page(props) {
-    const params = await props.params;
+    const params = await props.params
     let tag = params.tag as string
 
     let item = parseItem({
@@ -30,8 +30,8 @@ export default async function Page(props) {
 }
 
 export async function generateMetadata(props) {
-    const searchParams = await props.searchParams;
-    const params = await props.params;
+    const searchParams = await props.searchParams
+    const params = await props.params
     function getFiltersText(filter) {
         if (!filter) {
             return ' '
@@ -47,11 +47,14 @@ export async function generateMetadata(props) {
 
     let item = await api.getItemDetails(tag)
 
+    const searchString = searchParams.filter ? `?filter=${searchParams.filter}` : ''
+
     return getHeadMetadata(
         `${item.name || convertTagToName(tag)} archived auctions`,
         `${itemFilter ? `Filters: \n${getFiltersText(itemFilter)}` : ''}`,
         item.iconUrl,
         [item.name || convertTagToName(tag)],
-        `${item.name || convertTagToName(tag)} price | Hypixel SkyBlock AH history tracker`
+        `${item.name || convertTagToName(tag)} price | Hypixel SkyBlock AH history tracker`,
+        getCanonicalUrl(`/item/${tag}/archive`, searchString)
     )
 }

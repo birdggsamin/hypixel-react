@@ -106,7 +106,7 @@ export const FLIP_FINDERS = [
         description: "Uses the same algorithm as Sniper but doesn't require the item to be below lowest bin and only 5% below the median sell value.",
         selectable: true
     },
-    { value: '8', label: 'AI', shortLabel: 'AI', default: false, description: '', selectable: false },
+    { value: '8', label: 'AI', shortLabel: 'AI', default: false, description: 'This is an algorigthm based on machine learning. It gets a feeling of how much something is worth and reports that back', selectable: true },
     {
         value: '16',
         label: 'User (whitelists)',
@@ -133,7 +133,7 @@ export const FLIP_FINDERS = [
                 The integration is currently under development.",
             </span>
         ),
-        selectable: true
+        selectable: false
     },
     {
         value: '64',
@@ -158,11 +158,38 @@ export const FLIP_FINDERS = [
             <span>
                 Displays any auction that would be at least 5% more expensive to craft. <br />
                 Sums up clean+modifier cost. <br />
-                You can adjust weights of every attribute with the <b>CraftCostWeight</b> filter.<br />
+                You can adjust weights of every attribute with the <b>CraftCostWeight</b> filter.
+                <br />
                 Note that this does not indicate that the item will sell for that price.
             </span>
         ),
         selectable: true
+    },
+    {
+        value: '2048',
+        label: 'Rust',
+        shortLabel: 'Rust',
+        default: false,
+        description: (
+            <span>
+                Built for speed using Rust and hosted on high-performance US infrastructure directly near Hypixel servers. This finder aims to beat network delays to spot flips instantly, using a combination of LBIN checks and sales history for accuracy.
+                <br />
+                <i>This is a third-party finder that we provide the infrastructure for, it costs extra and only works with the mod use /cofl rust in the mod to see.</i>
+            </span>
+        ),
+        selectable: true
+    },
+    {
+        value: '4096',
+        label: 'Bazaar',
+        shortLabel: 'Bazaar',
+        default: false,
+        description: (
+            <span>
+                Mix in Bazaar flips of profitable buy order -&gt; sell order opportunities.
+            </span>
+        ),
+        selectable: false
     }
 ]
 
@@ -202,7 +229,8 @@ export const DEFAULT_FLIP_SETTINGS = {
         hideModChat: false,
         hideSellerOpenBtn: false,
         modFormat: '',
-        modCountdown: false
+        modCountdown: false,
+        blockHighCompetition: true
     } as FlipCustomizeSettings,
     RESTRICTIONS: [] as FlipRestriction[],
     FILTER: {

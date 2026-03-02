@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import GoogleSignIn from '../components/GoogleSignIn/GoogleSignIn'
 import { PREMIUM_RANK } from './PremiumTypeUtils'
-import type { JSX } from "react";
+import type { JSX } from 'react'
 
 /**
  * Utility functon for the recent and active auctions lists
@@ -22,7 +22,7 @@ export function getMoreAuctionsElement(
     if (!isLoggedIn || !premiumType) {
         return (
             <div style={{ marginBottom: '15px', textAlign: 'center' }}>
-                You can see more auctions with one of our <Link href={'/premium'}>Premium options</Link>. You can even click{' '}
+                You can see more auctions with one of our <Link href={'/premium?tier=starter'}>Premium options</Link>. You can even click{' '}
                 <Link href="/linkvertise">here</Link> to get Starter Premium for free.
                 <GoogleSignIn onAfterLogin={onAfterLogin} />
             </div>

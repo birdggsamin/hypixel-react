@@ -37,6 +37,7 @@ export enum RequestType {
     GET_FLIP_BASED_AUCTIONS = 'flipBased',
     PAYPAL_PAYMENT = 'topup/paypal',
     LEMONSQUEEZY_PAYMENT = 'topup/lemonsqueezy',
+    GOOGLE_PLAY_PAYMENT = 'topup/playstore',
     GET_REF_INFO = 'referral/info',
     SET_REF = 'referral/referred/by',
     ACTIVE_AUCTIONS = 'activeAuctions',
@@ -56,6 +57,7 @@ export enum RequestType {
     GET_LOWEST_BIN = 'lowestBin',
     GET_BAZAAR_TAGS = 'items/bazaar/tags',
     ITEM_PRICE_SUMMARY = 'item/price',
+    PRICE_CHANGE = 'prices/change',
     GET_KAT_FLIPS = 'kat/profit',
     GET_TRACKED_FLIPS_FOR_PLAYER = 'flip/stats/player',
     PURCHASE_WITH_COFLCOiNS = 'service/purchase',
@@ -111,6 +113,7 @@ export enum SubscriptionType {
     USE_SELL_NOT_BUY = 32,
     AUCTION = 64,
     PLAYER_CREATES_AUCTION = 128,
+    WHITELIST = 512,
     BOUGHT_ANY_AUCTION = 1024
 }
 
@@ -139,7 +142,7 @@ export interface NotificationListener {
     topicId: string
     price: number
     types: SubscriptionType[]
-    type: 'player' | 'item' | 'auction' | 'bazaar'
+    type: 'player' | 'item' | 'auction' | 'bazaar' | 'whitelist'
     title?: string
     filter?: ItemFilter
 }
@@ -161,7 +164,9 @@ export interface HttpApi extends Connection {
 
 export let CUSTOM_EVENTS = {
     FLIP_SETTINGS_CHANGE: 'flipSettingsChange',
+    PREMIUM_PRODUCTS_UPDATED: 'premium.products.updated',
     COFLCOIN_UPDATE: 'coflCoinRefresh',
     GOOGLE_LOGIN: 'googleLogin',
-    BAZAAR_SNAPSHOT_UPDATE: 'bazaarSnapshotUpdate'
+    BAZAAR_SNAPSHOT_UPDATE: 'bazaarSnapshotUpdate',
+    FAVORITES_UPDATED: 'favoritesUpdated'
 }

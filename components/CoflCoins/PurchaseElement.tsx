@@ -1,10 +1,10 @@
-'use client';
+'use client'
 import { Card } from 'react-bootstrap'
 import styles from './CoflCoinsPurchase.module.css'
 import Number from '../Number/Number'
 import GenericProviderPurchaseCard from './GenericProviderPurchaseCard'
 
-import type { JSX } from "react";
+import type { JSX } from 'react'
 
 interface Props {
     coflCoinsToBuy: number
@@ -14,27 +14,81 @@ interface Props {
     paypalPrice: number
     lemonsqueezyPrice: number
     lemonsqueezyProductId: string
+    googlePlayPrice: number
+    googlePlayProductId: string
     disabledTooltip: JSX.Element | undefined
     loadingProductId: string
     onPayPalPay(prodcutId: string, coflCoins?: number)
     onStripePay(producctId: string, coflCoins?: number)
     onLemonSqeezyPay(productId: string, coflCoins?: number)
+    onGooglePlayPay(productId: string, coflCoins?: number)
     isDisabled: boolean
     redirectLink?: string
     countryCode?: string
-    discount?: number
+    paypalDiscount?: number
+    stripeDiscount?: number
+    lemonSqueezyDiscount?: number
+    googlePlayDiscount?: number
     isSpecial1800CoinsMultiplier?: boolean
+    isGooglePlayAvailable?: boolean
+    isAndroidApp?: boolean
+    currencyCode?: string
 }
 
 // prettier-ignore
-const EU_Countries = ["AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR","HU","IE","IT","LV","LT","LU","MT","NL","PL","PT","RO","SK","SI","ES","SE" ]
+const EU_Countries = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE"]
 let PAYPAL_STRIPE_ALLOWED = [...EU_Countries, 'GB', 'US']
 
 export default function PurchaseElement(props: Props) {
     let isDisabled = props.isDisabled || !props.countryCode
 
+    const standardAmounts = [1800, 5400, 10800, 36000, 90000]
+    const isCustomAmount = !standardAmounts.includes(props.coflCoinsToBuy)
+    const shouldPassCustomAmount = props.isSpecial1800CoinsMultiplier || isCustomAmount
+
+    const googlePlayCard = (
+        <>
+            {props.isGooglePlayAvailable ? (
+                <GenericProviderPurchaseCard
+                    type="Google Play"
+                    isDisabled={isDisabled}
+                    onPay={() => {
+                        props.onGooglePlayPay(props.googlePlayProductId, shouldPassCustomAmount ? props.coflCoinsToBuy : undefined)
+                    }}
+                    price={props.googlePlayPrice}
+                    discount={props.googlePlayDiscount}
+                    isRedirecting={
+                        !shouldPassCustomAmount
+                            ? props.googlePlayProductId === props.loadingProductId
+                            : `${props.googlePlayProductId}_${props.coflCoinsToBuy}` === props.loadingProductId
+                    }
+                    disabledTooltip={props.disabledTooltip}
+                    currencyCode={props.currencyCode}
+                />
+            ) : (
+                <a href='https://play.google.com/store/apps/details?id=com.coflnet.sky'><p style={{ color: '#adb5bd', marginBottom: 0 }}>There are more options, eg. gift cards in our android app.</p>
+                </a>
+            )}
+        </>
+    )
+
+    if (props.isAndroidApp) {
+        return (
+            <Card className={styles.premiumPlanCard} style={{ width: '100%' }}>
+                <Card.Header>
+                    <Card.Title>
+                        <Number number={props.coflCoinsToBuy} /> CoflCoins
+                    </Card.Title>
+                </Card.Header>
+                <Card.Body>
+                    {googlePlayCard}
+                </Card.Body>
+            </Card>
+        )
+    }
+
     return (
-        <Card className={styles.premiumPlanCard} style={props.isSpecial1800CoinsMultiplier ? { width: '100%' } : {}}>
+        <Card className={styles.premiumPlanCard} style={{ width: '100%' }}>
             <Card.Header>
                 <Card.Title>
                     <Number number={props.coflCoinsToBuy} /> CoflCoins
@@ -60,33 +114,35 @@ export default function PurchaseElement(props: Props) {
                             type="PayPal"
                             isDisabled={isDisabled}
                             onPay={() => {
-                                props.onPayPalPay(props.paypalProductId, props.isSpecial1800CoinsMultiplier ? props.coflCoinsToBuy : undefined)
+                                props.onPayPalPay(props.paypalProductId, shouldPassCustomAmount ? props.coflCoinsToBuy : undefined)
                             }}
                             price={props.paypalPrice}
                             redirectLink={props.redirectLink}
-                            discount={props.discount}
+                            discount={props.paypalDiscount}
                             isRedirecting={
-                                !props.isSpecial1800CoinsMultiplier
+                                !shouldPassCustomAmount
                                     ? props.paypalProductId === props.loadingProductId
                                     : `${props.paypalProductId}_${props.coflCoinsToBuy}` === props.loadingProductId
                             }
                             disabledTooltip={props.disabledTooltip}
+                            currencyCode={props.currencyCode}
                         />
                         <GenericProviderPurchaseCard
                             type="Stripe"
                             isDisabled={isDisabled}
                             onPay={() => {
-                                props.onStripePay(props.stripeProductId, props.isSpecial1800CoinsMultiplier ? props.coflCoinsToBuy : undefined)
+                                props.onStripePay(props.stripeProductId, shouldPassCustomAmount ? props.coflCoinsToBuy : undefined)
                             }}
                             price={props.stripePrice}
                             redirectLink={props.redirectLink}
-                            discount={props.discount}
+                            discount={props.stripeDiscount}
                             isRedirecting={
-                                !props.isSpecial1800CoinsMultiplier
+                                !shouldPassCustomAmount
                                     ? props.stripeProductId === props.loadingProductId
                                     : `${props.stripeProductId}_${props.coflCoinsToBuy}` === props.loadingProductId
                             }
                             disabledTooltip={props.disabledTooltip}
+                            currencyCode={props.currencyCode}
                         />
                     </>
                 ) : (
@@ -94,19 +150,21 @@ export default function PurchaseElement(props: Props) {
                         type="LemonSqueezy"
                         isDisabled={isDisabled}
                         onPay={() => {
-                            props.onLemonSqeezyPay(props.lemonsqueezyProductId, props.isSpecial1800CoinsMultiplier ? props.coflCoinsToBuy : undefined)
+                            props.onLemonSqeezyPay(props.lemonsqueezyProductId, shouldPassCustomAmount ? props.coflCoinsToBuy : undefined)
                         }}
                         price={props.lemonsqueezyPrice}
                         redirectLink={props.redirectLink}
-                        discount={props.discount}
+                        discount={props.lemonSqueezyDiscount}
                         isRedirecting={
-                            !props.isSpecial1800CoinsMultiplier
+                            !shouldPassCustomAmount
                                 ? props.lemonsqueezyProductId === props.loadingProductId
                                 : `${props.lemonsqueezyProductId}_${props.coflCoinsToBuy}` === props.loadingProductId
                         }
                         disabledTooltip={props.disabledTooltip}
+                        currencyCode={props.currencyCode}
                     />
                 )}
+                {googlePlayCard}
             </Card.Body>
         </Card>
     )

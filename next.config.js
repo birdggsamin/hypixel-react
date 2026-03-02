@@ -3,13 +3,18 @@ const withMDX = require('@next/mdx')()
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
+    poweredByHeader: false,
+    compress: true,
+    eslint: {
+        ignoreDuringBuilds: true
+    },
     basePath: process.env.BASE_PATH,
     images: {
         unoptimized: true,
         remotePatterns: [
             {
                 protocol: 'https',
-                hostname: 'crafatar.com'
+                hostname: 'sky.coflnet.com'
             },
             {
                 protocol: 'https',
@@ -44,6 +49,23 @@ const nextConfig = {
             }
         ]
     },
+    async headers() {
+        return [
+            {
+                source: '/:path*',
+                headers: [
+                    {
+                        key: 'X-DNS-Prefetch-Control',
+                        value: 'on'
+                    },
+                    {
+                        key: 'X-Content-Type-Options',
+                        value: 'nosniff'
+                    }
+                ]
+            }
+        ]
+    },
     modularizeImports: {
         '@mui/material': {
             transform: '@mui/material/{{member}}'
@@ -51,6 +73,9 @@ const nextConfig = {
         '@mui/icons-material': {
             transform: '@mui/icons-material/{{member}}'
         }
+    },
+    experimental: {
+        optimizePackageImports: ['echarts-for-react', 'react-bootstrap', '@mui/icons-material']
     }
 }
 

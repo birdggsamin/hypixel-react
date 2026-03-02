@@ -15,21 +15,26 @@ function ModDetails() {
                 </Card.Header>
                 <Card.Body>
                     <p>
-                        Say goodbye to window switching! The SkyCofl mod provides you with data directly in Hypixel Skyblock. You can access price paid, the Auction
-                        Flipper, median price, lowest BIN, bazaar prices and more!
+                        Say goodbye to window switching! The SkyCofl mod provides you with data directly in Hypixel Skyblock. You can access price paid, the
+                        Auction Flipper, median price, lowest BIN, bazaar prices and more!
                     </p>
                     <h3>Recommended Installation</h3>
                     <p>
                         We recommend installing the mod from{' '}
-                        <a href="https://modrinth.com/mod/skycofl/versions" target="_blank" rel="noopener noreferrer">
+                        <a href="https://modrinth.com/mod/skycofl" target="_blank" rel="noopener noreferrer">
                             Modrinth
                         </a>
-                        . It is available for Forge 1.8.9 and <b>Fabric 1.21.5+</b>. For more information see our{' '}
-                        <a href="/wiki/mod">SkyCofl wiki</a>.
+                        . It is available for Forge 1.8.9 and <b>Fabric 1.21.5+</b>. For more information see our <a href="/wiki/mod">SkyCofl wiki</a>.
                     </p>
 
                     <h3>Alternative for 1.8.9</h3>
-                    <p>Use <a href="https://skyclient.co/" rel="nofollow noopener noreferrer">SkyClient</a> and add our mod (easiest)</p>
+                    <p>
+                        Use{' '}
+                        <a href="https://skyclient.co/" rel="nofollow noopener noreferrer">
+                            SkyClient
+                        </a>{' '}
+                        and add our mod (easiest)
+                    </p>
 
                     <h3>Legacy-Installation</h3>
                     <ol>
@@ -74,8 +79,9 @@ function ModDetails() {
                                 </g>
                             </svg>
                         </a>
-                        <Button href="https://modrinth.com/mod/skycofl/versions">
-                            Download<DownloadIcon />
+                        <Button href="https://modrinth.com/mod/skycofl">
+                            Download
+                            <DownloadIcon />
                         </Button>
                         <a href="https://github.com/coflnet/skyblockmod/">
                             <Image src="/github_logo.png" alt="Github logo" width="38" height="38" />

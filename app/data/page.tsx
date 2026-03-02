@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Search from '../../components/Search/Search'
-import { getHeadMetadata } from '../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import { Container, Card, CardHeader, CardTitle, CardBody } from 'react-bootstrap'
 
 export default function Page() {
@@ -29,7 +29,13 @@ export default function Page() {
                                 <Link href="/flipper">An AH flipper</Link>
                             </li>
                             <li>
-                                <Link href="/">An AH Browser</Link>
+                                <Link href="/bazaar">A skyblock bazaar flipper</Link>
+                            </li>
+                            <li>
+                                <Link href="/bazaar">Other Hypixel Skyblock flips</Link>
+                            </li>
+                            <li>
+                                <Link href="/">An AH and bazaar Browser</Link>
                             </li>
                         </ul>
 
@@ -74,4 +80,11 @@ export default function Page() {
     )
 }
 
-export const metadata = getHeadMetadata('API')
+export const metadata = getHeadMetadata(
+    'API',
+    'Access comprehensive Hypixel SkyBlock auction and bazaar data through our free API. Get real-time prices, historical data, item information, and player statistics for your applications and tools.',
+    undefined,
+    undefined,
+    undefined,
+    getCanonicalUrl('/data')
+)

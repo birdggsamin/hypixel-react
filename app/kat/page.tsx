@@ -2,7 +2,8 @@ import { Container } from 'react-bootstrap'
 import { initAPI } from '../../api/ApiHelper'
 import { KatFlips } from '../../components/KatFlips/KatFlips'
 import Search from '../../components/Search/Search'
-import { getHeadMetadata } from '../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
+import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
 
 export default async function Page() {
     let api = initAPI(true)
@@ -15,10 +16,18 @@ export default async function Page() {
                 <hr />
                 <KatFlips flips={flips} />
             </Container>
+            <BottomBanner />
         </>
     )
 }
 
-export const metadata = getHeadMetadata('Kat Flips', 'List of profitable upgrades from the NPC "Kat"')
+export const metadata = getHeadMetadata(
+    'Kat Flips',
+    'List of profitable upgrades from the NPC "Kat"',
+    undefined,
+    undefined,
+    undefined,
+    getCanonicalUrl('/kat')
+)
 
 export const revalidate = 0

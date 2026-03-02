@@ -2,7 +2,7 @@
 import DangerousIcon from '@mui/icons-material/Dangerous'
 import Image from 'next/image'
 import { ChangeEvent, useEffect, useState } from 'react'
-import { Form, ListGroup } from 'react-bootstrap'
+import { Button, Form, ListGroup } from 'react-bootstrap'
 import { Item, Menu, useContextMenu } from 'react-contexify'
 import { useForceUpdate, useQueryParamState, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getSettingsObject, IGNORE_FLIP_TRACKING_PROFIT, setSetting } from '../../utils/SettingsUtils'
@@ -20,6 +20,8 @@ import ShowMoreText from '../ShowMoreText/ShowMoreText'
 import { NumericFormat } from 'react-number-format'
 import { getDecimalSeparator, getThousandSeparator } from '../../utils/Formatter'
 import ApiSearchField from '../Search/ApiSearchField'
+import Tooltip from '../Tooltip/Tooltip'
+import InfoIcon from '@mui/icons-material/Info'
 
 interface Props {
     totalProfit?: number
@@ -88,7 +90,9 @@ const FILTER_OPTIONS: FilterOption[] = [
 const TRACKED_FLIP_CONTEXT_MENU_ID = 'tracked-flip-context-menu'
 
 const DEFAULT_TIME_FILTER_RANGE = 1000 * 60 * 60 * 24 * 7
-const PREMIUM_TIME_FILTER_RANGE = 1000 * 60 * 60 * 24 * 30 * 2
+const PREMIUM_TIME_FILTER_RANGE = 1000 * 60 * 60 * 24 * 365 // 1 year for Premium
+const PREMIUM_PLUS_TIME_FILTER_RANGE = 1000 * 60 * 60 * 24 * 365 * 2 // 2 years for Premium+
+const MAX_RANGE_AT_ONCE = 1000 * 60 * 60 * 24 * 30 * 12 // 12 months
 
 export function FlipTracking(props: Props) {
     let [trackedFlips, setTrackedFlips] = useState<FlipTrackingFlip[]>(props.trackedFlips || [])
@@ -96,9 +100,12 @@ export function FlipTracking(props: Props) {
     let [rangeStartDate, setRangeStartDate] = useState(new Date(new Date().getTime() - DEFAULT_TIME_FILTER_RANGE))
     let [rangeEndDate, setRangeEndDate] = useState(new Date())
     let [hasPremium, setHasPremium] = useState(false)
+    let [hasPremiumPlus, setHasPremiumPlus] = useState(false)
     let [isLoading, setIsLoading] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [wasManualLoginClick, setWasManualLoginClick] = useState(false)
+    let [showRangeWarning, setShowRangeWarning] = useState(false)
+    let [showPremiumPlusWarning, setShowPremiumPlusWarning] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
     let forceUpdate = useForceUpdate()
 
@@ -169,6 +176,29 @@ export function FlipTracking(props: Props) {
         show({ event: event, props: { uid: event.currentTarget.id } })
     }
 
+    function checkAndSetRangeWarning(from: Date, to: Date) {
+        const rangeDiff = to.getTime() - from.getTime()
+        const maxRangeForTier = hasPremiumPlus ? PREMIUM_PLUS_TIME_FILTER_RANGE : hasPremium ? PREMIUM_TIME_FILTER_RANGE : DEFAULT_TIME_FILTER_RANGE
+
+        // Check if trying to go beyond tier's limit
+        const now = new Date().getTime()
+        if (from.getTime() < now - maxRangeForTier) {
+            if (hasPremium && !hasPremiumPlus) {
+                setShowPremiumPlusWarning(true)
+                setShowRangeWarning(false)
+            }
+            return false
+        }
+        setShowPremiumPlusWarning(false)
+
+        if (rangeDiff > MAX_RANGE_AT_ONCE) {
+            setShowRangeWarning(true)
+            return false
+        }
+        setShowRangeWarning(false)
+        return true
+    }
+
     async function loadFlipsForTimespan(from: Date, to: Date) {
         setIsLoading(true)
         let newFlips = await api.getTrackedFlipsForPlayer(props.playerUUID, from, to)
@@ -179,10 +209,11 @@ export function FlipTracking(props: Props) {
     function onAfterLogin() {
         setIsLoggedIn(true)
         api.refreshLoadPremiumProducts(products => {
-            let hasEnoughPremium = hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM)
-            setHasPremium(hasEnoughPremium)
+            let hasPremium = hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM)
+            setHasPremium(hasPremium)
+            setHasPremiumPlus(hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM_PLUS))
 
-            if (wasManualLoginClick && hasEnoughPremium) {
+            if (wasManualLoginClick && hasPremium) {
                 window.scrollTo({ top: 0, behavior: 'smooth' })
             }
         })
@@ -243,7 +274,12 @@ export function FlipTracking(props: Props) {
 
     return (
         <div>
-            <FlipTrackingTotalProfitCalculation flips={trackedFlips} ignoreProfitMap={ignoreProfitMap} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <FlipTrackingTotalProfitCalculation flips={trackedFlips} ignoreProfitMap={ignoreProfitMap} />
+                <Link href={'/profitLeaderboard'} className="disableLinkStyle">
+                    <Button variant="primary">Profit Leaderboard</Button>
+                </Link>
+            </div>
             <div className={styles.topContainer}>
                 <ShowMoreText
                     allowShowLess
@@ -336,11 +372,14 @@ export function FlipTracking(props: Props) {
                         <div style={{ paddingRight: 15 }}>
                             <DatePicker
                                 onChange={e => {
-                                    setRangeStartDate(e ?? new Date())
-                                    loadFlipsForTimespan(e ?? new Date(), rangeEndDate)
+                                    const newDate = e ?? new Date()
+                                    setRangeStartDate(newDate)
+                                    if (checkAndSetRangeWarning(newDate, rangeEndDate)) {
+                                        loadFlipsForTimespan(newDate, rangeEndDate)
+                                    }
                                 }}
                                 className={'form-control'}
-                                minDate={new Date(new Date().getTime() - (hasPremium ? PREMIUM_TIME_FILTER_RANGE : DEFAULT_TIME_FILTER_RANGE))}
+                                minDate={new Date(new Date().getTime() - (hasPremiumPlus ? PREMIUM_PLUS_TIME_FILTER_RANGE : hasPremium ? PREMIUM_TIME_FILTER_RANGE : DEFAULT_TIME_FILTER_RANGE))}
                                 maxDate={new Date()}
                                 selected={rangeStartDate}
                             />
@@ -349,17 +388,37 @@ export function FlipTracking(props: Props) {
                         <DatePicker
                             className={'form-control'}
                             onChange={e => {
-                                setRangeEndDate(e ?? new Date())
-                                loadFlipsForTimespan(rangeStartDate, e ?? new Date())
+                                const newDate = e ?? new Date()
+                                setRangeEndDate(newDate)
+                                if (checkAndSetRangeWarning(rangeStartDate, newDate)) {
+                                    loadFlipsForTimespan(rangeStartDate, newDate)
+                                }
                             }}
-                            minDate={new Date(new Date().getTime() - (hasPremium ? PREMIUM_TIME_FILTER_RANGE : DEFAULT_TIME_FILTER_RANGE))}
+                            minDate={new Date(new Date().getTime() - (hasPremiumPlus ? PREMIUM_PLUS_TIME_FILTER_RANGE : hasPremium ? PREMIUM_TIME_FILTER_RANGE : DEFAULT_TIME_FILTER_RANGE))}
                             maxDate={new Date()}
                             selected={rangeEndDate}
                         />
                     </div>
-                    <div className={styles.noPremiumInfoText}>
-                        Only auctions sold in the last 7 days are displayed here. <br /> You can see more with <Link href={'/premium'}>Premium</Link>
-                    </div>
+                    {showRangeWarning && (hasPremium || hasPremiumPlus) && (
+                        <Tooltip
+                            type="hover"
+                            content={<InfoIcon style={{ color: '#ff9800' }} />}
+                            tooltipContent={<div>You can only view up to 1 year at a time. Please adjust your end time.</div>}
+                        />
+                    )}
+                    {showPremiumPlusWarning && hasPremium && !hasPremiumPlus && (
+                        <Tooltip
+                            type="hover"
+                            content={<InfoIcon style={{ color: '#ffc107' }} />}
+                            tooltipContent={<div>Premium users can view up to 1 year in the past. Upgrade to Premium+ to view up to 2 years back.</div>}
+                        />
+                    )}
+                    {!hasPremium && (
+                        <div className={styles.noPremiumInfoText}>
+                            Only auctions sold in the last 7 days are displayed here. <br /> You can see more with{' '}
+                            <Link href={'/premium?tier=premium'}>Premium</Link>
+                        </div>
+                    )}
                 </div>
             </div>
             {isLoading ? (
@@ -369,7 +428,7 @@ export function FlipTracking(props: Props) {
                     {trackedFlips.length === 0 ? (
                         <div className={styles.noAuctionFound}>
                             <Image src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />{' '}
-                            <p>We couldn't find any flips.</p>
+                            <p>We couldn't find any flips for this player within the selected timeframe.</p>
                         </div>
                     ) : (
                         <ListGroup className={styles.list}>{list}</ListGroup>

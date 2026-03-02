@@ -11,12 +11,12 @@ Welcome to the comprehensive guide for SkyCofl's Hypixel SkyBlock tools and feat
 ## Getting Started
 
 - [What is SkyCofl?](#what-is-skycofl)
-- [Quick Start Guide](./quick-start)
-- [Account Setup](./account-setup)
+- [Quick Start Guide](/wiki/quick-start)
+- [Account Setup](/wiki/account-setup)
 
 ## Core Features
 
-- [Auction House Browser](./auction-house)
+- [Auction House Browser](/wiki/auction-house)
 - [Item Flipper](./flipper)
 
 ## Tools & Utilities
@@ -24,6 +24,7 @@ Welcome to the comprehensive guide for SkyCofl's Hypixel SkyBlock tools and feat
 - [Minecraft Mod](./mod)
 - [Profitable Crafts](/crafts)
 - [Kat Flips](/kat)
+- [Skyblock flipping hub](/flips)
 
 
 ## What is SkyCofl?
@@ -33,7 +34,7 @@ SkyCofl is a comprehensive platform for Hypixel SkyBlock players that provides:
 - **Auction House History**: Browse through over 800 million historical auctions
 - **Bazaar History**: The largest bazaar price database in existence starting just 2 days after the bazaar api released
 - **Price Tracking**: Track item prices and market trends
-- **Flip Finding**: Discover profitable auction house, bazaar buy-sel, craft, forge and many other flips
+- **Flip Finding**: Discover profitable auction house, bazaar buy-sell, craft, forge and many other flips
 - **Market Analysis**: Analyze bazaar and auction house data
 - **Notifications**: Get alerts for price changes and auction events
 - **Many more in game**: Check the [mod features](./mod) page for more details

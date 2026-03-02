@@ -19,6 +19,8 @@ interface Props {
     item: Item
     itemFilter: ItemFilter
     onChangeToActiveAuctions?(): void
+    yearRecentSamples?: RecentAuction[] // For year view recent samples
+    isYearView?: boolean // To disable certain features for year view
 }
 
 enum RECENT_AUCTIONS_FETCH_TYPE {
@@ -55,9 +57,17 @@ function RecentAuctions(props: Props) {
     }, [])
 
     useEffect(() => {
-        loadRecentAuctions(true)
+        if (props.yearRecentSamples && props.isYearView) {
+            const samples = props.yearRecentSamples || []
+            const initial = samples.slice(0, FETCH_RESULT_SIZE)
+            setRecentAuctions(initial)
+            setAllElementsLoaded(initial.length >= samples.length)
+            setNoResults(samples.length === 0)
+        } else {
+            loadRecentAuctions(true)
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.item.tag, JSON.stringify(props.itemFilter)])
+    }, [props.item.tag, JSON.stringify(props.itemFilter), props.yearRecentSamples, props.isYearView])
 
     function loadRecentAuctions(reset: boolean = false) {
         let recentAuctions = reset ? [] : recentAuctionsRef.current
@@ -100,11 +110,30 @@ function RecentAuctions(props: Props) {
                 break
         }
 
-        if (page >= maxPages) {
+        if (!(props.isYearView && props.yearRecentSamples) && page >= maxPages) {
             setAllElementsLoaded(true)
             return
         }
         itemFilter['page'] = page.toString()
+        if (props.isYearView && props.yearRecentSamples) {
+            const samples = props.yearRecentSamples || []
+            const start = page * FETCH_RESULT_SIZE
+            const end = start + FETCH_RESULT_SIZE
+            const newRecentAuctions = samples.slice(start, end)
+
+            if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })) {
+                return
+            }
+
+            if (newRecentAuctions.length === 0) {
+                setNoResults(true)
+            }
+            if (end >= samples.length) {
+                setAllElementsLoaded(true)
+            }
+            setRecentAuctions([...recentAuctions, ...newRecentAuctions])
+            return
+        }
 
         api.getRecentAuctions(props.item.tag, itemFilter).then(newRecentAuctions => {
             if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })) {
@@ -131,7 +160,6 @@ function RecentAuctions(props: Props) {
     }
 
     function onAfterLogin() {
-
         let onAfterPremiumProductsLoaded = (products: PremiumProduct[]) => {
             setIsLoggedIn(true)
             let activePremium = getHighestPriorityPremiumProduct(products)
@@ -151,14 +179,18 @@ function RecentAuctions(props: Props) {
             })
         }
 
-        api.getPremiumProducts().then(products => {
-            onAfterPremiumProductsLoaded(products)
-        }).catch(() => {
-            onAfterPremiumProductsLoaded([{
-                expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365), // 1 year
-                productSlug: 'premium',
-            }])
-        })
+        api.getPremiumProducts()
+            .then(products => {
+                onAfterPremiumProductsLoaded(products)
+            })
+            .catch(() => {
+                onAfterPremiumProductsLoaded([
+                    {
+                        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365), // 1 year
+                        productSlug: 'premium'
+                    }
+                ])
+            })
     }
 
     let recentAuctionList = recentAuctions.map(recentAuction => {
@@ -209,8 +241,8 @@ function RecentAuctions(props: Props) {
     return (
         <div className={styles.recentAuctions}>
             <h3>
-                Recent auctions
-                {!isSSR ? (
+                {props.isYearView ? 'Last matching auctions' : 'Recent auctions'}
+                {!isSSR && !props.isYearView ? (
                     <Form.Select
                         defaultValue={localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY) || RECENT_AUCTIONS_FETCH_TYPE.SOLD}
                         className={styles.recentAuctionsFetchType}
@@ -262,7 +294,7 @@ function RecentAuctions(props: Props) {
                             </Link>
                         ) : (
                             <div style={{ textAlign: 'center', marginBottom: '15px' }}>
-                                You can search through all our archived auctions with <Link href={'/premium'}>Premium+</Link>
+                                You can search through all our archived auctions with <Link href={'/premium?tier=premium_plus'}>Premium+</Link>
                             </div>
                         )}
                     </div>
@@ -276,7 +308,7 @@ function RecentAuctions(props: Props) {
                     premiumType,
                     onAfterLogin,
                     <span style={{ textAlign: 'center', marginBottom: '15px' }}>
-                        You currently use Starter Premium. You can see up to 120 recent auctions with <Link href={'/premium'}>Premium</Link>
+                        You currently use Starter Premium. You can see up to 120 recent auctions with <Link href={'/premium?tier=premium'}>Premium</Link>
                     </span>
                 )}
         </div>

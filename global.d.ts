@@ -1,6 +1,31 @@
 // declaration.d.ts
 declare module '*.scss'
 
+declare global {
+    interface Window {
+        __cmp?: any;
+        __tcfapi?: any;
+        nitroAds?: any;
+        __npcmp?: any;
+        __billingInitialized?: boolean;
+        AndroidBilling?: {
+            isAvailable(): boolean;
+            purchaseProduct(productId: string): void;
+        };
+    }
+
+    interface WindowEventMap {
+        androidBillingReady: Event;
+        androidBillingSuccess: CustomEvent<{
+            productId: string;
+            purchaseToken: string;
+        }>;
+        androidBillingError: CustomEvent<{
+            error: string;
+        }>;
+    }
+}
+
 interface Player {
     name: string
     uuid: string
@@ -26,6 +51,22 @@ interface Item {
     category?: string
     iconUrl?: string
     bazaar?: boolean
+}
+
+interface FavoriteItemEntry {
+    tag: string
+    name?: string
+    iconUrl?: string
+    bazaar?: boolean
+    addedAt?: string
+}
+
+interface FavoriteItemEntry {
+    tag: string
+    name?: string
+    iconUrl?: string
+    bazaar?: boolean
+    addedAt?: string
 }
 
 interface ItemPrice {
@@ -356,6 +397,7 @@ interface FlipCustomizeSettings {
     modFormat?: string
     modCountdown?: boolean
     blockExport?: boolean
+    blockHighCompetition?: boolean
 }
 
 interface FlipRestriction {
@@ -384,6 +426,12 @@ interface ReloadFeedback {
     loadNewInformation: boolean
     somethingBroke: boolean
     otherIssue: boolean
+    additionalInformation: string
+}
+
+interface SubscriptionCancelFeedback {
+    stoppedPlayingSkyblock: boolean
+    hasComplaint: boolean
     additionalInformation: string
 }
 
@@ -451,6 +499,15 @@ interface ItemPriceSummary {
     mode: number
     volume: number
     max: number
+}
+
+interface ItemPriceMovement {
+    tag: string
+    recent: number
+    monthly: number
+    volume: number
+    now: number
+    lastUpdated?: Date
 }
 
 interface PaymentResponse {
@@ -545,6 +602,7 @@ enum DateRange {
     DAY = 'day',
     MONTH = 'month',
     WEEK = 'week',
+    YEAR = 'year',
     ALL = 'ALL'
 }
 

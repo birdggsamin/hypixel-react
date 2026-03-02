@@ -1,6 +1,6 @@
 'use client'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
-import React, { ChangeEvent, useEffect, useState, type JSX } from 'react';
+import React, { ChangeEvent, useEffect, useState, type JSX } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { DEMO_FLIP, FLIP_FINDERS, getFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils'
 import {
@@ -38,12 +38,7 @@ function FlipCustomize() {
         let settings = getFlipCustomizeSettings()
         setIsExportDisabled(settings.blockExport === true)
         setFlipCustomizeSettings({ ...settings })
-        loadPublishedConfigs()
     }, [])
-
-    async function loadPublishedConfigs() {
-        let configs = await api.getPublishedConfigs()
-    }
 
     function setFlipCustomizeSetting(key: string, value: any) {
         flipCustomizeSettings[key] = value
@@ -143,8 +138,17 @@ function FlipCustomize() {
         }
 
         addWarningForFinder('TFM', warnings, 'The "TFM"-Finder is outdated and therefore considered risky. Only use if you know what you are doing.')
-        addWarningForFinder('Stonks', warnings, 'The "Stonks"-Finder is work in progress and therefore considered risky. Only use if you know what you are doing.')
-        addWarningForFinder('CraftCost', warnings, 'The "CraftCost"-Finder sums up craft cost. It does not mean its estimations are correct, please report any cases where you know they are not.')
+        addWarningForFinder('AI', warnings, 'The "AI"-Finder can make mistakes be sure to check it and report issues if you find any wrong estimations.')
+        addWarningForFinder(
+            'Stonks',
+            warnings,
+            'The "Stonks"-Finder is work in progress and therefore considered risky. Only use if you know what you are doing.'
+        )
+        addWarningForFinder(
+            'CraftCost',
+            warnings,
+            'The "CraftCost"-Finder sums up craft cost. It does not mean its estimations are correct, please report any cases where you know they are not.'
+        )
 
         if (warnings.length === 0) {
             return null
@@ -528,6 +532,21 @@ function FlipCustomize() {
                                     }}
                                     defaultChecked={!flipCustomizeSettings.hideLore}
                                     id="hideLore"
+                                    style={{ display: 'inline' }}
+                                    type="checkbox"
+                                />
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label className={styles.label} htmlFor="blockHighCompetition">
+                                    Block high competition
+                                </Form.Label>
+                                <Form.Check
+                                    onChange={event => {
+                                        updateApiSetting('blockHighCompetition', event.target.checked)
+                                        setFlipCustomizeSetting('blockHighCompetition', event.target.checked)
+                                    }}
+                                    defaultChecked={flipCustomizeSettings.blockHighCompetition}
+                                    id="blockHighCompetition"
                                     style={{ display: 'inline' }}
                                     type="checkbox"
                                 />
